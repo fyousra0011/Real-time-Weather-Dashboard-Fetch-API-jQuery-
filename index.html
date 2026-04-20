@@ -3,12 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="SkyNow — real-time weather dashboard using Fetch API and jQuery AJAX" />
   <title>SkyNow</title>
   <link rel="stylesheet" href="style.css" />
 
   <!--
     jQuery loaded from CDN 
-    We use the slim build since we only need $.getJSON / $.ajax.
+    We use the full minified build since we only need $.getJSON / $.ajax.
   -->
   <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 </head>
@@ -62,12 +63,12 @@
 
       <!-- City name placeholder -->
       <div class="current-top">
-        <div id="city-name" class="city-name skeleton skeleton-text-lg">
+        <h2 id="city-name" class="city-name skeleton skeleton-text-lg">
           <!-- Filled by JS -->
-        </div>
-        <div id="local-time" class="local-time skeleton skeleton-text-sm">
+        </h2>
+        <time id="local-time" class="local-time skeleton skeleton-text-sm">
           <!-- Filled by jQuery (Task 3) -->
-        </div>
+        </time>
       </div>
 
       <!-- Temperature and description -->
@@ -80,9 +81,9 @@
         </div>
       </div>
 
-      <div id="weather-desc" class="weather-desc skeleton skeleton-text-sm">
+      <p id="weather-desc" class="weather-desc skeleton skeleton-text-sm">
         
-      </div>
+      </p>
 
       <!-- Extra stats row -->
       <div class="current-stats">
