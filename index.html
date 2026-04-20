@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SkyNow</title>
+  <link rel="stylesheet" href="style.css" />
+
+  <!--
+    jQuery loaded from CDN 
+    We use the slim build since we only need $.getJSON / $.ajax.
+  -->
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+</head>
+<body>
+
+  <div class="app-wrapper">
+
+    <header class="app-header">
+      <h1 class="app-title">SkyNow</h1>
+      <p class="app-subtitle">Real-time weather powered by Fetch API &amp; jQuery</p>
+
+      <div class="search-row">
+      
+        <input
+          type="text"
+          id="city-input"
+          class="search-input"
+          placeholder="Search a city…"
+          aria-label="City name"
+          autocomplete="off"
+        />
+        <button id="search-btn" class="search-btn" aria-label="Search">Search</button>
+      </div>
+
+      <!-- Validation / general error messages appear here -->
+      <div id="error-banner" class="error-banner hidden" role="alert">
+        <span id="error-message"></span>
+        <button id="retry-btn" class="retry-btn hidden">Retry</button>
+      </div>
+
+      <!--
+        Bonus: Recent search chips (last 5 cities from localStorage).
+        The list is populated by app.js.
+      -->
+      <div id="recent-searches" class="recent-searches" aria-label="Recent searches"></div>
+    </header>
+
+    <!-- UNIT TOGGLE  -->
+    <div class="unit-toggle-row">
+      <span class="unit-label">°C</span>
+      <label class="toggle-switch" aria-label="Switch temperature unit">
+        <input type="checkbox" id="unit-toggle" />
+        <span class="toggle-slider"></span>
+      </label>
+      <span class="unit-label">°F</span>
+    </div>
+
+    <!--  CURRENT WEATHER CARD -->
+   
+    <section id="current-card" class="current-card" aria-label="Current weather">
+
+      <!-- City name placeholder -->
+      <div class="current-top">
+        <div id="city-name" class="city-name skeleton skeleton-text-lg">
+          <!-- Filled by JS -->
+        </div>
+        <div id="local-time" class="local-time skeleton skeleton-text-sm">
+          <!-- Filled by jQuery (Task 3) -->
+        </div>
+      </div>
+
+      <!-- Temperature and description -->
+      <div class="current-main">
+        <div id="weather-icon" class="weather-icon skeleton skeleton-icon">
+          <!-- Emoji icon from weathercode lookup -->
+        </div>
+        <div id="temperature" class="temperature skeleton skeleton-text-lg">
+         
+        </div>
+      </div>
+
+      <div id="weather-desc" class="weather-desc skeleton skeleton-text-sm">
+        
+      </div>
+
+      <!-- Extra stats row -->
+      <div class="current-stats">
+        <div class="stat-item">
+          <span class="stat-label">Humidity</span>
+          <span id="humidity" class="stat-value skeleton skeleton-text-sm"></span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Wind</span>
+          <span id="wind-speed" class="stat-value skeleton skeleton-text-sm"></span>
+        </div>
+      </div>
+    </section>
+
+    <!--  7-DAY FORECAST ROW  -->
+    <!--
+      Task 1 — 7 forecast cards, each with skeleton placeholders.
+      JS removes the skeleton classes and fills real data on success.
+    -->
+    <section class="forecast-section" aria-label="7-day forecast">
+      <h2 class="section-title">7-Day Forecast</h2>
+      <div id="forecast-row" class="forecast-row">
+     
+        <!-- card template repeated 7× -->
+        <div class="forecast-card">
+          <div class="fc-day skeleton skeleton-text-sm"></div>
+          <div class="fc-icon skeleton skeleton-icon-sm"></div>
+          <div class="fc-high skeleton skeleton-text-sm"></div>
+          <div class="fc-low skeleton skeleton-text-sm"></div>
+        </div>
+        <div class="forecast-card">
+          <div class="fc-day skeleton skeleton-text-sm"></div>
+          <div class="fc-icon skeleton skeleton-icon-sm"></div>
+          <div class="fc-high skeleton skeleton-text-sm"></div>
+          <div class="fc-low skeleton skeleton-text-sm"></div>
+        </div>
+        <div class="forecast-card">
+          <div class="fc-day skeleton skeleton-text-sm"></div>
+          <div class="fc-icon skeleton skeleton-icon-sm"></div>
+          <div class="fc-high skeleton skeleton-text-sm"></div>
+          <div class="fc-low skeleton skeleton-text-sm"></div>
+        </div>
+        <div class="forecast-card">
+          <div class="fc-day skeleton skeleton-text-sm"></div>
+          <div class="fc-icon skeleton skeleton-icon-sm"></div>
+          <div class="fc-high skeleton skeleton-text-sm"></div>
+          <div class="fc-low skeleton skeleton-text-sm"></div>
+        </div>
+        <div class="forecast-card">
+          <div class="fc-day skeleton skeleton-text-sm"></div>
+          <div class="fc-icon skeleton skeleton-icon-sm"></div>
+          <div class="fc-high skeleton skeleton-text-sm"></div>
+          <div class="fc-low skeleton skeleton-text-sm"></div>
+        </div>
+        <div class="forecast-card">
+          <div class="fc-day skeleton skeleton-text-sm"></div>
+          <div class="fc-icon skeleton skeleton-icon-sm"></div>
+          <div class="fc-high skeleton skeleton-text-sm"></div>
+          <div class="fc-low skeleton skeleton-text-sm"></div>
+        </div>
+        <div class="forecast-card">
+          <div class="fc-day skeleton skeleton-text-sm"></div>
+          <div class="fc-icon skeleton skeleton-icon-sm"></div>
+          <div class="fc-high skeleton skeleton-text-sm"></div>
+          <div class="fc-low skeleton skeleton-text-sm"></div>
+        </div>
+      </div>
+    </section>
+
+  </div><!-- /.app-wrapper -->
+
+
+  <script src="app.js"></script>
+
+</body>
+</html>
