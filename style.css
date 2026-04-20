@@ -1,0 +1,415 @@
+/*
+   SkyNow — style.css
+   Chapter 4 Lab Exercise 3
+    */
+
+
+/*  1. RESET & BASE ──────────────────────────────────────── */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background: #f0f4f8;
+  color: #1a2330;
+  min-height: 100vh;
+  line-height: 1.5;
+}
+
+
+/* ── 2. LAYOUT ────────────────────────────────────────────── */
+
+.app-wrapper {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 24px 16px 48px;
+}
+
+
+/* ── 3. HEADER & SEARCH ───────────────────────────────────── */
+
+.app-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.app-title {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #1565c0;
+  letter-spacing: -0.5px;
+}
+
+.app-subtitle {
+  font-size: 0.9rem;
+  color: #607d8b;
+  margin-top: 4px;
+  margin-bottom: 20px;
+}
+
+.search-row {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+.search-input {
+  width: 320px;
+  padding: 10px 16px;
+  border: 2px solid #90caf9;
+  border-radius: 8px;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.search-input:focus {
+  border-color: #1565c0;
+}
+
+.search-btn {
+  padding: 10px 24px;
+  background: #1565c0;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.search-btn:hover {
+  background: #0d47a1;
+}
+
+
+/* ── 4. ERROR BANNER ──────────────────────────────────────── */
+/*
+  Task 4 — visible when network error, HTTP error, or timeout occurs.
+  The retry button lets the user repeat the last search.
+*/
+
+.error-banner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 12px;
+  padding: 12px 20px;
+  background: #ffebee;
+  border: 1px solid #ef9a9a;
+  border-radius: 8px;
+  color: #b71c1c;
+  font-size: 0.95rem;
+}
+
+.retry-btn {
+  padding: 6px 14px;
+  background: #b71c1c;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.88rem;
+}
+
+.retry-btn:hover {
+  background: #7f0000;
+}
+
+
+/* ── 5. RECENT SEARCHES (Bonus) ───────────────────────────── */
+
+.recent-searches {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 14px;
+  min-height: 30px;
+}
+
+.chip {
+  padding: 5px 14px;
+  background: #e3f2fd;
+  border: 1px solid #90caf9;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  color: #1565c0;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.chip:hover {
+  background: #bbdefb;
+}
+
+
+/* ── 6. UNIT TOGGLE (Bonus) ───────────────────────────────── */
+
+.unit-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.unit-label {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #455a64;
+}
+
+/* Custom toggle switch */
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-slider {
+  position: absolute;
+  inset: 0;
+  background: #90caf9;
+  border-radius: 24px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.toggle-slider::before {
+  content: '';
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  left: 3px;
+  top: 3px;
+  background: #fff;
+  border-radius: 50%;
+  transition: transform 0.2s;
+}
+
+.toggle-switch input:checked + .toggle-slider {
+  background: #1565c0;
+}
+
+.toggle-switch input:checked + .toggle-slider::before {
+  transform: translateX(20px);
+}
+
+
+/* ── 7. CURRENT WEATHER CARD ──────────────────────────────── */
+
+.current-card {
+  background: linear-gradient(135deg, #1565c0 0%, #1e88e5 100%);
+  border-radius: 16px;
+  padding: 28px 32px;
+  color: #fff;
+  margin-bottom: 24px;
+  min-height: 220px;
+}
+
+.current-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.city-name {
+  font-size: 1.8rem;
+  font-weight: 700;
+  min-width: 160px;
+  min-height: 36px;
+}
+
+.local-time {
+  font-size: 0.95rem;
+  opacity: 0.85;
+  min-width: 100px;
+  min-height: 20px;
+  text-align: right;
+}
+
+.current-main {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 8px;
+}
+
+.weather-icon {
+  font-size: 3rem;
+  min-width: 56px;
+  min-height: 56px;
+  line-height: 1;
+}
+
+.temperature {
+  font-size: 3.5rem;
+  font-weight: 700;
+  min-width: 120px;
+  min-height: 56px;
+}
+
+.weather-desc {
+  font-size: 1.1rem;
+  opacity: 0.9;
+  margin-bottom: 20px;
+  min-width: 140px;
+  min-height: 24px;
+}
+
+.current-stats {
+  display: flex;
+  gap: 32px;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.stat-label {
+  font-size: 0.78rem;
+  opacity: 0.7;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.stat-value {
+  font-size: 1.05rem;
+  font-weight: 600;
+  min-width: 80px;
+  min-height: 22px;
+}
+
+
+/* ── 8. 7-DAY FORECAST CARDS ──────────────────────────────── */
+
+.section-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #455a64;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  margin-bottom: 12px;
+}
+
+.forecast-row {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 10px;
+}
+
+/* Responsive: on narrow screens, wrap the forecast cards */
+@media (max-width: 620px) {
+  .forecast-row {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.forecast-card {
+  background: #fff;
+  border-radius: 10px;
+  padding: 12px 8px;
+  text-align: center;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: center;
+}
+
+.fc-day {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #607d8b;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  min-width: 36px;
+  min-height: 14px;
+}
+
+.fc-icon {
+  font-size: 1.6rem;
+  min-width: 32px;
+  min-height: 32px;
+}
+
+.fc-high {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #e53935;
+  min-width: 36px;
+  min-height: 18px;
+}
+
+.fc-low {
+  font-size: 0.88rem;
+  color: #1565c0;
+  min-width: 36px;
+  min-height: 16px;
+}
+
+
+/* ── 9. SKELETON LOADING ANIMATION ───────────────────────── */
+
+
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    #e0e0e0 25%,
+    #f5f5f5 50%,
+    #e0e0e0 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 4px;
+
+  /* Make sure text inside skeleton placeholders is invisible */
+  color: transparent !important;
+  pointer-events: none;
+}
+
+/* Skeleton on the blue current-card uses lighter tones */
+.current-card .skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(255,255,255,0.2) 25%,
+    rgba(255,255,255,0.4) 50%,
+    rgba(255,255,255,0.2) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* Preset skeleton dimensions so the layout doesn't jump on load */
+.skeleton-text-lg { width: 160px; height: 32px; }
+.skeleton-text-sm { width: 100px; height: 18px; }
+.skeleton-icon    { width: 56px;  height: 56px; border-radius: 50%; }
+.skeleton-icon-sm { width: 32px;  height: 32px; border-radius: 50%; }
+
+
+/* ── 10. UTILITY ──────────────────────────────────────────── */
+
+.hidden {
+  display: none !important;
+}
