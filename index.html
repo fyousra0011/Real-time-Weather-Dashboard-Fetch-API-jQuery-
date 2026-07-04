@@ -1,162 +1,817 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <meta name="description" content="SkyNow — real-time weather dashboard using Fetch API and jQuery AJAX" />
-  <title>SkyNow</title>
-  <link rel="stylesheet" href="style.css" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WeatherNow — Real-Time Dashboard</title>
 
-  <!--
-    jQuery loaded from CDN 
-    We use the full minified build since we only need $.getJSON / $.ajax.
-  -->
-  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <!-- jQuery CDN -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"
+            integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
+            crossorigin="anonymous">
+    </script>
+
+    <style>
+        /* ===== RESET & BASE ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f4f8;
+            color: #1a202c;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        }
+
+        h1 {
+            font-size: 28px;
+            font-weight: 700;
+            color: #2b6cb0;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: #718096;
+            font-size: 14px;
+            margin-bottom: 24px;
+        }
+
+        /* ===== SEARCH BAR ===== */
+        .search-section {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .search-section input {
+            flex: 1;
+            min-width: 200px;
+            padding: 12px 18px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: border-color 0.2s;
+        }
+
+        .search-section input:focus {
+            outline: none;
+            border-color: #2b6cb0;
+        }
+
+        .search-section button {
+            padding: 12px 32px;
+            background: #2b6cb0;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .search-section button:hover {
+            background: #1a4f7a;
+        }
+
+        .search-section button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        /* ===== VALIDATION & ERROR MESSAGES ===== */
+        .validation-msg {
+            color: #e53e3e;
+            font-size: 14px;
+            margin-top: -12px;
+            margin-bottom: 16px;
+            display: none;
+        }
+
+        .validation-msg.show {
+            display: block;
+        }
+
+        .error-banner {
+            background: #fed7d7;
+            color: #9b2c2c;
+            padding: 14px 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .error-banner.show {
+            display: flex;
+        }
+
+        .error-banner .retry-btn {
+            background: #9b2c2c;
+            color: white;
+            border: none;
+            padding: 6px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .error-banner .retry-btn:hover {
+            background: #742a2a;
+        }
+
+        /* ===== RECENT SEARCHES ===== */
+        .recent-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .recent-chips .chip {
+            background: #edf2f7;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background 0.2s;
+            border: none;
+        }
+
+        .recent-chips .chip:hover {
+            background: #e2e8f0;
+        }
+
+        .recent-label {
+            font-size: 13px;
+            color: #718096;
+            margin-right: 6px;
+        }
+
+        /* ===== CURRENT WEATHER CARD ===== */
+        .current-weather {
+            background: linear-gradient(135deg, #2b6cb0, #1a365d);
+            color: white;
+            border-radius: 16px;
+            padding: 28px 32px;
+            margin-bottom: 28px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            min-height: 160px;
+        }
+
+        .current-weather .left h2 {
+            font-size: 32px;
+            font-weight: 700;
+        }
+
+        .current-weather .left .temp {
+            font-size: 48px;
+            font-weight: 700;
+            margin: 4px 0;
+        }
+
+        .current-weather .left .desc {
+            font-size: 18px;
+            opacity: 0.9;
+        }
+
+        .current-weather .right {
+            text-align: right;
+            font-size: 15px;
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+
+        .current-weather .right .time-display {
+            font-size: 20px;
+            font-weight: 600;
+            opacity: 1;
+        }
+
+        /* ===== SKELETON LOADING ===== */
+        .skeleton {
+            background: linear-gradient(90deg, #e0e0e0 25%, #f5f5f5 50%, #e0e0e0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: 6px;
+        }
+
+        @keyframes shimmer {
+            0% {
+                background-position: -200% 0;
+            }
+            100% {
+                background-position: 200% 0;
+            }
+        }
+
+        .skeleton-text {
+            height: 16px;
+            width: 100%;
+            margin-bottom: 6px;
+        }
+        .skeleton-text.short {
+            width: 60%;
+        }
+        .skeleton-text.medium {
+            width: 80%;
+        }
+        .skeleton-title {
+            height: 28px;
+            width: 70%;
+            margin-bottom: 8px;
+        }
+        .skeleton-temp {
+            height: 48px;
+            width: 50%;
+        }
+
+        /* ===== 7-DAY FORECAST ===== */
+        .forecast-section h3 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 16px;
+        }
+
+        .forecast-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 14px;
+        }
+
+        .forecast-card {
+            background: #f7fafc;
+            border-radius: 14px;
+            padding: 16px 12px;
+            text-align: center;
+            transition: transform 0.2s;
+            min-height: 120px;
+        }
+
+        .forecast-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .forecast-card .day {
+            font-weight: 600;
+            font-size: 15px;
+            color: #2d3748;
+        }
+
+        .forecast-card .icon {
+            font-size: 32px;
+            margin: 6px 0;
+        }
+
+        .forecast-card .high-low {
+            font-size: 14px;
+            color: #4a5568;
+        }
+
+        .forecast-card .high {
+            font-weight: 600;
+            color: #e53e3e;
+        }
+
+        .forecast-card .low {
+            color: #3182ce;
+        }
+
+        /* ===== FOOTER ===== */
+        .footer-note {
+            margin-top: 28px;
+            font-size: 13px;
+            color: #a0aec0;
+            text-align: center;
+            border-top: 1px solid #edf2f7;
+            padding-top: 20px;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 600px) {
+            .container {
+                padding: 16px;
+            }
+            .current-weather {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+            .current-weather .right {
+                text-align: left;
+                width: 100%;
+            }
+            .forecast-grid {
+                grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            }
+            .search-section input {
+                min-width: 140px;
+            }
+        }
+    </style>
 </head>
+
 <body>
 
-  <div class="app-wrapper">
+    <div class="container">
 
-    <header class="app-header">
-      <h1 class="app-title">SkyNow</h1>
-      <p class="app-subtitle">Real-time weather powered by Fetch API &amp; jQuery</p>
+        <h1>🌤️ WeatherNow</h1>
+        <p class="subtitle">Real-time weather dashboard using Fetch API &amp; jQuery</p>
 
-      <div class="search-row">
-      
-        <input
-          type="text"
-          id="city-input"
-          class="search-input"
-          placeholder="Search a city…"
-          aria-label="City name"
-          autocomplete="off"
-        />
-        <button id="search-btn" class="search-btn" aria-label="Search">Search</button>
-      </div>
+        <!-- ===== SEARCH ===== -->
+        <div class="search-section">
+            <input type="text" id="cityInput" placeholder="Enter city name..." />
+            <button id="searchBtn">Search</button>
+        </div>
 
-      <!-- Validation / general error messages appear here -->
-      <div id="error-banner" class="error-banner hidden" role="alert">
-        <span id="error-message"></span>
-        <button id="retry-btn" class="retry-btn hidden">Retry</button>
-      </div>
+        <div class="validation-msg" id="validationMsg">Please enter at least 2 characters.</div>
 
-      <!--
-        Bonus: Recent search chips (last 5 cities from localStorage).
-        The list is populated by app.js.
-      -->
-      <div id="recent-searches" class="recent-searches" aria-label="Recent searches"></div>
-    </header>
+        <!-- ===== ERROR BANNER ===== -->
+        <div class="error-banner" id="errorBanner">
+            <span id="errorText">Something went wrong.</span>
+            <button class="retry-btn" id="retryBtn">Retry</button>
+        </div>
 
-    <!-- UNIT TOGGLE  -->
-    <div class="unit-toggle-row">
-      <span class="unit-label">°C</span>
-      <label class="toggle-switch" aria-label="Switch temperature unit">
-        <input type="checkbox" id="unit-toggle" />
-        <span class="toggle-slider"></span>
-      </label>
-      <span class="unit-label">°F</span>
+        <!-- ===== RECENT SEARCHES ===== -->
+        <div class="recent-chips" id="recentContainer">
+            <span class="recent-label">🔍 Recent:</span>
+        </div>
+
+        <!-- ===== CURRENT WEATHER ===== -->
+        <div class="current-weather" id="currentWeather">
+            <div class="left">
+                <h2 id="cityName" class="skeleton skeleton-title">Loading...</h2>
+                <div id="tempDisplay" class="temp skeleton skeleton-temp">--°C</div>
+                <div id="descDisplay" class="desc skeleton skeleton-text">Loading description...</div>
+            </div>
+            <div class="right">
+                <div id="timeDisplay" class="time-display skeleton skeleton-text">--:--</div>
+                <div id="humidityDisplay">💧 Humidity: --%</div>
+                <div id="windDisplay">💨 Wind: -- km/h</div>
+            </div>
+        </div>
+
+        <!-- ===== 7-DAY FORECAST ===== -->
+        <div class="forecast-section">
+            <h3>📅 7-Day Forecast</h3>
+            <div class="forecast-grid" id="forecastGrid">
+                <!-- 7 skeleton cards -->
+                <div class="forecast-card skeleton" style="min-height:120px;"></div>
+                <div class="forecast-card skeleton" style="min-height:120px;"></div>
+                <div class="forecast-card skeleton" style="min-height:120px;"></div>
+                <div class="forecast-card skeleton" style="min-height:120px;"></div>
+                <div class="forecast-card skeleton" style="min-height:120px;"></div>
+                <div class="forecast-card skeleton" style="min-height:120px;"></div>
+                <div class="forecast-card skeleton" style="min-height:120px;"></div>
+            </div>
+        </div>
+
+        <div class="footer-note">
+            Built with Fetch API &amp; jQuery AJAX &bull; Data from Open-Meteo &amp; WorldTimeAPI
+        </div>
     </div>
 
-    <!--  CURRENT WEATHER CARD -->
-   
-    <section id="current-card" class="current-card" aria-label="Current weather">
+    <!-- ============================================================ -->
+    <!-- ===== JAVASCRIPT ===== -->
+    <!-- ============================================================ -->
+    <script>
+        // ================================================================
+        // 1. WEATHER CODE LOOKUP TABLE
+        // ================================================================
+        const weatherCodeMap = {
+            0: { desc: 'Clear sky', icon: '☀️' },
+            1: { desc: 'Mainly clear', icon: '🌤️' },
+            2: { desc: 'Partly cloudy', icon: '⛅' },
+            3: { desc: 'Overcast', icon: '☁️' },
+            45: { desc: 'Fog', icon: '🌫️' },
+            48: { desc: 'Depositing rime fog', icon: '🌫️' },
+            51: { desc: 'Light drizzle', icon: '🌦️' },
+            53: { desc: 'Moderate drizzle', icon: '🌧️' },
+            55: { desc: 'Dense drizzle', icon: '🌧️' },
+            61: { desc: 'Slight rain', icon: '🌧️' },
+            63: { desc: 'Moderate rain', icon: '🌧️' },
+            65: { desc: 'Heavy rain', icon: '🌧️' },
+            71: { desc: 'Slight snow fall', icon: '🌨️' },
+            73: { desc: 'Moderate snow fall', icon: '🌨️' },
+            75: { desc: 'Heavy snow fall', icon: '❄️' },
+            80: { desc: 'Slight rain showers', icon: '🌦️' },
+            81: { desc: 'Moderate rain showers', icon: '🌧️' },
+            82: { desc: 'Violent rain showers', icon: '⛈️' },
+            95: { desc: 'Thunderstorm', icon: '⛈️' },
+            96: { desc: 'Thunderstorm with slight hail', icon: '⛈️' },
+            99: { desc: 'Thunderstorm with heavy hail', icon: '⛈️' },
+        };
 
-      <!-- City name placeholder -->
-      <div class="current-top">
-        <h2 id="city-name" class="city-name skeleton skeleton-text-lg">
-          <!-- Filled by JS -->
-        </h2>
-        <time id="local-time" class="local-time skeleton skeleton-text-sm">
-          <!-- Filled by jQuery (Task 3) -->
-        </time>
-      </div>
+        function getWeatherInfo(code) {
+            return weatherCodeMap[code] || { desc: 'Unknown', icon: '❓' };
+        }
 
-      <!-- Temperature and description -->
-      <div class="current-main">
-        <div id="weather-icon" class="weather-icon skeleton skeleton-icon">
-          <!-- Emoji icon from weathercode lookup -->
-        </div>
-        <div id="temperature" class="temperature skeleton skeleton-text-lg">
-         
-        </div>
-      </div>
+        // ================================================================
+        // 2. DOM REFERENCES
+        // ================================================================
+        const cityInput = document.getElementById('cityInput');
+        const searchBtn = document.getElementById('searchBtn');
+        const validationMsg = document.getElementById('validationMsg');
+        const errorBanner = document.getElementById('errorBanner');
+        const errorText = document.getElementById('errorText');
+        const retryBtn = document.getElementById('retryBtn');
+        const recentContainer = document.getElementById('recentContainer');
 
-      <p id="weather-desc" class="weather-desc skeleton skeleton-text-sm">
-        
-      </p>
+        const cityNameEl = document.getElementById('cityName');
+        const tempDisplay = document.getElementById('tempDisplay');
+        const descDisplay = document.getElementById('descDisplay');
+        const timeDisplay = document.getElementById('timeDisplay');
+        const humidityDisplay = document.getElementById('humidityDisplay');
+        const windDisplay = document.getElementById('windDisplay');
+        const forecastGrid = document.getElementById('forecastGrid');
 
-      <!-- Extra stats row -->
-      <div class="current-stats">
-        <div class="stat-item">
-          <span class="stat-label">Humidity</span>
-          <span id="humidity" class="stat-value skeleton skeleton-text-sm"></span>
-        </div>
-        <div class="stat-item">
-          <span class="stat-label">Wind</span>
-          <span id="wind-speed" class="stat-value skeleton skeleton-text-sm"></span>
-        </div>
-      </div>
-    </section>
+        // ================================================================
+        // 3. STATE
+        // ================================================================
+        let currentCity = '';
+        let currentCoords = null;
+        let currentWeatherData = null;
+        let isFetching = false;
+        let abortController = null;
+        let debounceTimer = null;
 
-    <!--  7-DAY FORECAST ROW  -->
-    <!--
-      Task 1 — 7 forecast cards, each with skeleton placeholders.
-      JS removes the skeleton classes and fills real data on success.
-    -->
-    <section class="forecast-section" aria-label="7-day forecast">
-      <h2 class="section-title">7-Day Forecast</h2>
-      <div id="forecast-row" class="forecast-row">
-     
-        <!-- card template repeated 7× -->
-        <div class="forecast-card">
-          <div class="fc-day skeleton skeleton-text-sm"></div>
-          <div class="fc-icon skeleton skeleton-icon-sm"></div>
-          <div class="fc-high skeleton skeleton-text-sm"></div>
-          <div class="fc-low skeleton skeleton-text-sm"></div>
-        </div>
-        <div class="forecast-card">
-          <div class="fc-day skeleton skeleton-text-sm"></div>
-          <div class="fc-icon skeleton skeleton-icon-sm"></div>
-          <div class="fc-high skeleton skeleton-text-sm"></div>
-          <div class="fc-low skeleton skeleton-text-sm"></div>
-        </div>
-        <div class="forecast-card">
-          <div class="fc-day skeleton skeleton-text-sm"></div>
-          <div class="fc-icon skeleton skeleton-icon-sm"></div>
-          <div class="fc-high skeleton skeleton-text-sm"></div>
-          <div class="fc-low skeleton skeleton-text-sm"></div>
-        </div>
-        <div class="forecast-card">
-          <div class="fc-day skeleton skeleton-text-sm"></div>
-          <div class="fc-icon skeleton skeleton-icon-sm"></div>
-          <div class="fc-high skeleton skeleton-text-sm"></div>
-          <div class="fc-low skeleton skeleton-text-sm"></div>
-        </div>
-        <div class="forecast-card">
-          <div class="fc-day skeleton skeleton-text-sm"></div>
-          <div class="fc-icon skeleton skeleton-icon-sm"></div>
-          <div class="fc-high skeleton skeleton-text-sm"></div>
-          <div class="fc-low skeleton skeleton-text-sm"></div>
-        </div>
-        <div class="forecast-card">
-          <div class="fc-day skeleton skeleton-text-sm"></div>
-          <div class="fc-icon skeleton skeleton-icon-sm"></div>
-          <div class="fc-high skeleton skeleton-text-sm"></div>
-          <div class="fc-low skeleton skeleton-text-sm"></div>
-        </div>
-        <div class="forecast-card">
-          <div class="fc-day skeleton skeleton-text-sm"></div>
-          <div class="fc-icon skeleton skeleton-icon-sm"></div>
-          <div class="fc-high skeleton skeleton-text-sm"></div>
-          <div class="fc-low skeleton skeleton-text-sm"></div>
-        </div>
-      </div>
-    </section>
+        // ================================================================
+        // 4. RECENT SEARCHES (localStorage)
+        // ================================================================
+        function getRecentSearches() {
+            try {
+                return JSON.parse(localStorage.getItem('weather_recent')) || [];
+            } catch {
+                return [];
+            }
+        }
 
-  </div><!-- /.app-wrapper -->
+        function saveRecentSearch(city) {
+            let recents = getRecentSearches();
+            recents = recents.filter(c => c.toLowerCase() !== city.toLowerCase());
+            recents.unshift(city);
+            if (recents.length > 5) recents.pop();
+            localStorage.setItem('weather_recent', JSON.stringify(recents));
+            renderRecentChips();
+        }
 
+        function renderRecentChips() {
+            const recents = getRecentSearches();
+            // Keep the label
+            recentContainer.innerHTML = '<span class="recent-label">🔍 Recent:</span>';
+            recents.forEach(city => {
+                const chip = document.createElement('button');
+                chip.className = 'chip';
+                chip.textContent = city;
+                chip.addEventListener('click', () => {
+                    cityInput.value = city;
+                    fetchWeatherForCity(city);
+                });
+                recentContainer.appendChild(chip);
+            });
+        }
 
-  <script src="app.js"></script>
+        // ================================================================
+        // 5. UI HELPERS: Loading / Skeleton / Error
+        // ================================================================
+        function showSkeleton() {
+            // Current weather
+            cityNameEl.className = 'skeleton skeleton-title';
+            cityNameEl.textContent = 'Loading...';
+            tempDisplay.className = 'temp skeleton skeleton-temp';
+            tempDisplay.textContent = '--°C';
+            descDisplay.className = 'desc skeleton skeleton-text';
+            descDisplay.textContent = 'Loading description...';
+            timeDisplay.className = 'time-display skeleton skeleton-text';
+            timeDisplay.textContent = '--:--';
+            humidityDisplay.textContent = '💧 Humidity: --%';
+            windDisplay.textContent = '💨 Wind: -- km/h';
 
+            // Forecast: 7 skeleton cards
+            forecastGrid.innerHTML = '';
+            for (let i = 0; i < 7; i++) {
+                const card = document.createElement('div');
+                card.className = 'forecast-card skeleton';
+                card.style.minHeight = '120px';
+                forecastGrid.appendChild(card);
+            }
+        }
+
+        function hideSkeleton() {
+            // Remove skeleton classes from current weather
+            cityNameEl.className = '';
+            tempDisplay.className = 'temp';
+            descDisplay.className = 'desc';
+            timeDisplay.className = 'time-display';
+        }
+
+        function showError(message) {
+            errorText.textContent = message;
+            errorBanner.classList.add('show');
+        }
+
+        function hideError() {
+            errorBanner.classList.remove('show');
+        }
+
+        function showValidation(message) {
+            validationMsg.textContent = message;
+            validationMsg.classList.add('show');
+        }
+
+        function hideValidation() {
+            validationMsg.classList.remove('show');
+        }
+
+        function setLoading(loading) {
+            isFetching = loading;
+            searchBtn.disabled = loading;
+            if (loading) {
+                searchBtn.textContent = 'Searching...';
+            } else {
+                searchBtn.textContent = 'Search';
+            }
+        }
+
+        // ================================================================
+        // 6. FETCH API — Geocoding + Weather
+        // ================================================================
+        async function fetchWeatherForCity(city) {
+            const trimmed = city.trim();
+            if (trimmed.length < 2) {
+                showValidation('Please enter at least 2 characters.');
+                return;
+            }
+            hideValidation();
+            hideError();
+
+            // Cancel any ongoing request
+            if (abortController) {
+                abortController.abort();
+            }
+            abortController = new AbortController();
+
+            setLoading(true);
+            showSkeleton();
+
+            // Save to recent
+            saveRecentSearch(trimmed);
+            currentCity = trimmed;
+
+            try {
+                // ---------- Step 1: Geocoding ----------
+                const geoUrl =
+                    `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(trimmed)}&count=1&language=en&format=json`;
+
+                const geoResp = await fetch(geoUrl, {
+                    signal: abortController.signal,
+                });
+
+                if (!geoResp.ok) {
+                    throw new Error(`HTTP ${geoResp.status} — Geocoding failed`);
+                }
+
+                const geoData = await geoResp.json();
+
+                if (!geoData.results || geoData.results.length === 0) {
+                    showError(`City "${trimmed}" not found. Please try another.`);
+                    setLoading(false);
+                    hideSkeleton();
+                    return;
+                }
+
+                const result = geoData.results[0];
+                const lat = result.latitude;
+                const lon = result.longitude;
+                const cityName = result.name;
+                const country = result.country || '';
+                const timezone = result.timezone || 'UTC';
+
+                currentCoords = { lat, lon, timezone };
+                cityNameEl.textContent = `${cityName}, ${country}`;
+
+                // ---------- Step 2: Weather Forecast ----------
+                const weatherUrl =
+                    `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&hourly=temperature_2m,relativehumidity_2m,windspeed_10m&daily=temperature_2m_max,temperature_2m_min,weathercode&timezone=${timezone}&forecast_days=7`;
+
+                const weatherResp = await fetch(weatherUrl, {
+                    signal: abortController.signal,
+                });
+
+                if (!weatherResp.ok) {
+                    throw new Error(`HTTP ${weatherResp.status} — Weather API failed`);
+                }
+
+                const weatherData = await weatherResp.json();
+                currentWeatherData = weatherData;
+
+                // ---------- Step 3: Populate UI ----------
+                populateCurrentWeather(weatherData, timezone);
+                populateForecast(weatherData);
+
+                // ---------- Step 4: jQuery AJAX — Local Time ----------
+                fetchLocalTimeWithJQuery(timezone);
+
+                hideSkeleton();
+                hideError();
+
+            } catch (err) {
+                if (err.name === 'AbortError') {
+                    // Request was cancelled — do nothing
+                    return;
+                }
+                if (err.message.includes('timeout') || err.message.includes('AbortError')) {
+                    showError('Request timed out after 10 seconds. Please try again.');
+                } else {
+                    showError(err.message || 'An unexpected error occurred.');
+                }
+                hideSkeleton();
+            } finally {
+                setLoading(false);
+                abortController = null;
+            }
+        }
+
+        // ================================================================
+        // 7. Populate Current Weather
+        // ================================================================
+        function populateCurrentWeather(data, timezone) {
+            const current = data.current_weather;
+            const temp = current.temperature;
+            const wind = current.windspeed;
+            const code = current.weathercode;
+            const weatherInfo = getWeatherInfo(code);
+
+            tempDisplay.textContent = `${temp}°C`;
+            descDisplay.textContent = `${weatherInfo.icon} ${weatherInfo.desc}`;
+
+            // Humidity from hourly (first entry)
+            if (data.hourly && data.hourly.relativehumidity_2m && data.hourly.relativehumidity_2m.length > 0) {
+                const humidity = data.hourly.relativehumidity_2m[0];
+                humidityDisplay.textContent = `💧 Humidity: ${humidity}%`;
+            } else {
+                humidityDisplay.textContent = '💧 Humidity: --%';
+            }
+
+            windDisplay.textContent = `💨 Wind: ${wind} km/h`;
+
+            // Store timezone for later
+            currentWeatherData._timezone = timezone;
+        }
+
+        // ================================================================
+        // 8. Populate 7-Day Forecast
+        // ================================================================
+        function populateForecast(data) {
+            const daily = data.daily;
+            const days = daily.time.length;
+            const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+            forecastGrid.innerHTML = '';
+
+            for (let i = 0; i < Math.min(days, 7); i++) {
+                const date = new Date(daily.time[i]);
+                const dayName = dayNames[date.getDay()];
+                const high = daily.temperature_2m_max[i];
+                const low = daily.temperature_2m_min[i];
+                const code = daily.weathercode[i];
+                const weatherInfo = getWeatherInfo(code);
+
+                const card = document.createElement('div');
+                card.className = 'forecast-card';
+                card.innerHTML = `
+                    <div class="day">${dayName}</div>
+                    <div class="icon">${weatherInfo.icon}</div>
+                    <div class="high-low">
+                        <span class="high">${Math.round(high)}°</span> / 
+                        <span class="low">${Math.round(low)}°</span>
+                    </div>
+                `;
+                forecastGrid.appendChild(card);
+            }
+        }
+
+        // ================================================================
+        // 9. jQuery AJAX — WorldTimeAPI (Local Time)
+        // ================================================================
+        function fetchLocalTimeWithJQuery(timezone) {
+            const url = `https://worldtimeapi.org/api/timezone/${encodeURIComponent(timezone)}`;
+
+            $.getJSON(url)
+                .done(function(data) {
+                    if (data && data.datetime) {
+                        const localTime = new Date(data.datetime);
+                        const formatted = localTime.toLocaleTimeString('en-US', {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            second: '2-digit',
+                            hour12: true,
+                        });
+                        timeDisplay.textContent = `🕐 ${formatted}`;
+                    } else {
+                        fallbackLocalTime();
+                    }
+                })
+                .fail(function() {
+                    fallbackLocalTime();
+                })
+                .always(function() {
+                    console.log(`[${new Date().toISOString()}] WorldTimeAPI request completed for "${currentCity}"`);
+                });
+        }
+
+        function fallbackLocalTime() {
+            const now = new Date();
+            const formatted = now.toLocaleTimeString('en-US', {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: true,
+            });
+            timeDisplay.textContent = `🕐 ${formatted} (local)`;
+        }
+
+        // ================================================================
+        // 10. DEBOUNCE + SEARCH HANDLERS
+        // ================================================================
+        function handleSearch() {
+            const query = cityInput.value;
+            if (debounceTimer) {
+                clearTimeout(debounceTimer);
+            }
+            debounceTimer = setTimeout(() => {
+                if (query.trim().length >= 2) {
+                    fetchWeatherForCity(query);
+                } else if (query.trim().length > 0 && query.trim().length < 2) {
+                    showValidation('Please enter at least 2 characters.');
+                } else {
+                    hideValidation();
+                }
+            }, 500);
+        }
+
+        // ================================================================
+        // 11. RETRY HANDLER
+        // ================================================================
+        retryBtn.addEventListener('click', function() {
+            const query = cityInput.value.trim();
+            if (query.length >= 2) {
+                fetchWeatherForCity(query);
+            } else {
+                showValidation('Please enter a valid city name.');
+            }
+        });
+
+        // ================================================================
+        // 12. EVENT LISTENERS
+        // ================================================================
+        searchBtn.addEventListener('click', handleSearch);
+        cityInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                handleSearch();
+            }
+        });
+
+        // ================================================================
+        // 13. INIT — Load recent searches on page load
+        // ================================================================
+        renderRecentChips();
+
+        // Optional: Load a default city on first visit
+        const recents = getRecentSearches();
+        if (recents.length > 0) {
+            cityInput.value = recents[0];
+            fetchWeatherForCity(recents[0]);
+        } else {
+            // Default fallback
+            cityInput.value = 'Kuala Lumpur';
+            fetchWeatherForCity('Kuala Lumpur');
+        }
+
+        console.log('🌤️ WeatherNow initialized!');
+        console.log('📦 Recent searches stored in localStorage.');
+    </script>
 </body>
 </html>
